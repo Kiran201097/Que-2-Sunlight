@@ -1,0 +1,109 @@
+#include<iostream>
+#include<math.h>
+#define pi 3.14
+using namespace std;
+int number_of_buildings;
+
+//function returns the calculated building surface length expose to sunlight 
+float Calculate_Surface(float** coordinates, float* S)
+{
+    float Surface_length = 0;
+    float a, b, c, d, p, q;
+    if (number_of_buildings == 1)
+    {
+        if (coordinates[1][1] < 0)  //for only 1 building
+        {
+            Surface_length = (coordinates[3][0] - coordinates[0][0]) + (coordinates[0][1] - coordinates[1][1]);
+        }
+        else
+        {
+            Surface_length = (coordinates[3][0] - coordinates[0][0]) + (coordinates[1][1] - coordinates[0][1]);
+        }
+    }
+    else   //for more than 1 building
+    {
+        for (int i = 0; i < (number_of_buildings * 4); i += 4)
+        {
+            if (coordinates[i][1] >= coordinates[i + 4][1])
+            {
+                if (coordinates[1][1] < 0)
+                {
+                    a = (coordinates[i][1] - coordinates[i + 2][1]) - (coordinates[i + 4][1] - coordinates[i + 6][1]);
+                    b = a + S[1];
+                    c = coordinates[i + 6][0] - S[0];
+                    p = atan(b / c);
+                    p = ((pi / 2) - (pi - (pi / 2) - p));
+                    d = tan(p);
+                    q = ((coordinates[i][0] - coordinates[i + 6][0]) * d);
+                    if (i == 0)
+                    {
+                        Surface_length = Surface_length + q + a + (coordinates[i + 2][0] - coordinates[i][0]) + (coordinates[i + 4][1] - coordinates[i + 6][1])
+                            + (coordinates[i + 6][0] - coordinates[i + 4][0]);
+                    }
+                    else
+                        Surface_length = Surface_length + q + a + (coordinates[i + 10][0] - coordinates[i + 8][0]);
+                }
+                else
+                {
+                    a = (coordinates[i + 2][1] - coordinates[i][1]) - (coordinates[i + 6][1] - coordinates[i + 4][1]);
+                    b = S[1] - coordinates[i + 6][1];
+                    c = coordinates[i + 6][0] - S[0];
+                    p = atan(b / c);
+                    p = ((pi / 2) - (pi - (pi / 2) - p));
+                    d = tan(p);
+                    q = ((coordinates[i][0] - coordinates[i + 6][0]) * d);
+                    if (i == 0)
+                    {
+                        Surface_length = Surface_length + q + a + (coordinates[i + 2][0] - coordinates[i][0]) + (coordinates[i + 6][1] - coordinates[i + 4][1])
+                            + (coordinates[i + 6][0] - coordinates[i + 4][0]);
+                    }
+                    else
+                        Surface_length = Surface_length + q + a + (coordinates[i + 2][0] - coordinates[i][0]);
+                }
+            }
+            else
+            {
+                Surface_length = (coordinates[i + 6][0] - coordinates[i + 4][0]) + (coordinates[i + 4][1] - coordinates[i + 6][1]);
+            }
+        }
+    }
+    return Surface_length;
+}
+int main()
+{
+    float Sun[2];
+    cout << "Enter the number of building:";
+    cin >> number_of_buildings;
+    if (number_of_buildings == 0)
+    {
+        return 1;
+    }
+    //Initialisation of 2-D array
+    float** Building_coordinates = new float* [number_of_buildings * 4];
+    for (int i = 0; i < (number_of_buildings * 4); i++)
+    {
+        Building_coordinates[i] = new float[2];
+    }
+    for (int i = 0; i < (number_of_buildings * 4); i++)
+    {
+        for (int j = 0; j < 2; j++)
+        {
+            cin >> Building_coordinates[i][j];       //input to Array
+        }
+    }
+    for (int i = 0; i < 2; i++)
+    {
+        cin >> Sun[i];
+    }
+    float Length_of_Surface = 0;
+    Length_of_Surface = Calculate_Surface(Building_coordinates, Sun);
+    cout << "Surface Length=" << Length_of_Surface;
+
+    //free dynamically created 2-D array
+    for (int i = 0; i < (number_of_buildings * 4); i++)
+    {
+        delete[] Building_coordinates[i];
+    }
+    delete[] Building_coordinates;
+    return 0;
+}
